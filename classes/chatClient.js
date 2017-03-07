@@ -23,14 +23,14 @@ module.exports = class ChatClient {
 
     login(username) {
         this.client.write(JSON.stringify({
-            command: "login",
+            request: "login",
             content: username
         }));
     }
 
     logout() {
         this.client.write(JSON.stringify({
-            command: "logout",
+            request: "logout",
             content: null
         }));
     }

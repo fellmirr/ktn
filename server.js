@@ -22,9 +22,9 @@ function handleData(clientid, data) {
     console.log(data);
     var data = JSON.parse(data);
 
-    if (data.command == "login") {
+    if (data.request == "login") {
         users[clientid] = data.content;
 
         console.log(users);
     }
-}
+}  

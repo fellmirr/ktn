@@ -10,9 +10,9 @@ var client;
 var connected = false;
 var exit = false;
 
-getCommand();
-function getCommand() {
-    rl.question("Command: ", (ans) => {
+getRequest();
+function getRequest() {
+    rl.question("Request: ", (ans) => {
         //Checks
         if (ans.length == 0) {
             rl.close();
@@ -20,22 +20,22 @@ function getCommand() {
         }
         
         //Juice
-        commandArray = ans.split(' ');
-        if (commandArray[0] == "connect") {
-            var host = commandArray[1];
-            var port = commandArray[2];
-            var username = commandArray[3];
+        RequestArray = ans.split(' ');
+        if (RequestArray[0] == "connect") {
+            var host = RequestArray[1];
+            var port = RequestArray[2];
+            var username = RequestArray[3];
 
             client = new chatClient(host, port, username, {
                 debug: true
             });
         }
 
-        if (commandArray[0] == "exit") {
+        if (RequestArray[0] == "exit") {
             process.abort();
         }
 
         rl.close();
-        getCommand();
+        getRequest();
     });
 }
