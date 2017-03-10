@@ -1,0 +1,11 @@
+class chatServer {
+    error() {
+
+    }
+
+    info() {
+
+    }
+
+    
+}
