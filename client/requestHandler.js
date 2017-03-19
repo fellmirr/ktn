@@ -1,9 +1,11 @@
 'use strict'
+
+const TCPClient = require('./TCPClient.js');
+
 class RequestHandler {
     constructor() {
         this.connected = false;
-        this.requstArray
-        this.possibleRequests = ['msg', 'connect', 'login', 'logout', 'exit', 'help', 'names']
+        this.possibleRequests = ['msg', 'connect', 'login', 'logout', 'exit', 'help', 'names'];
         console.log('Connect with:\r\nconnect host port\r\ne.g. "connect localhost 3000"');
     
     }
@@ -13,26 +15,31 @@ class RequestHandler {
         if(input.length == 0) {
             return;
         }
-        this.requstArray = input.split(' ');
-        console.log(this.requstArray[0] in this.possibleRequests)
-        console.log(this.requstArray[0])
-        console.log(this.possibleRequests)
 
-        if(this.requstArray[0] in this.possibleRequests){
+        const args = input.split(' ');
+
+        if(args[0] in this.possibleRequests){
             console.log('Error: command not possible')
             return
         }
-        //connect
 
-        // args are host and port
-        if(this.connected == false){
-            try{this.client = new TCPClient(requstArray[1], requstArray[2]);
-            this.connected = true;
-            } catch { console.log("Did you write the correct host and port?") }
+        if (args[0] == "connect") {
+            if (this.connected == false){
+                this.client = new TCPClient(args[1], args[2]);
+                this.connected = true;
+            } else {
+                console.log("Already connected. Please disconnect before attempting to connect.");
+            }
         }
-        //this.
-        //msg
-
+        else if (args[0] == "login") {
+            this.client.login(args[1]);
+        }
+        else if (args[0] == "msg") {
+            this.client.sendMsg(args[1]);
+        }
+        else {
+            console.log("Invalid command");
+        }
     }
 
     printResponse(response) {
@@ -61,3 +68,7 @@ function readRequest(){
     });
 }
 readRequest();
+
+//Testing commands
+p.parse("connect localhost 3000");
+p.parse("login user" + +Date.now());

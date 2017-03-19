@@ -13,7 +13,7 @@ module.exports = class ChatClient {
             this.client.on('data', this.incomming);
         });
 
-        if(options.debug) { 
+        if(options.debug) {
             this.debug = true;
         }
         else {

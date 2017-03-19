@@ -7,5 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Håkon Harnes",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "ansi": "^0.3.1",
+    "shortid": "^2.2.8"
+  }
 }
