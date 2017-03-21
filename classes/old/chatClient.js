@@ -1,8 +1,9 @@
 'use strict';
 
 const net = require('net');
+const EventEmitter = require('events').EventEmitter;
 
-module.exports = class ChatClient {
+module.exports = class ChatClient extends EventEmitter {
     constructor(host, port, username, options) {
         this.client = net.connect({
             host: host,
@@ -45,5 +46,7 @@ module.exports = class ChatClient {
         if (data.response) {
             
         }
+
+        this.emit("Incomming data!");
     }
 }

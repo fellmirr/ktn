@@ -1,13 +1,14 @@
-'use strict'
+
 
 const TCPClient = require('./TCPClient.js');
+var ansi = require('ansi')
+  , cursor = ansi(process.stdout)
 
 class RequestHandler {
     constructor() {
         this.connected = false;
         this.possibleRequests = ['msg', 'connect', 'login', 'logout', 'exit', 'help', 'names'];
-        console.log('Connect with:\r\nconnect host port\r\ne.g. "connect localhost 3000"');
-    
+        this.log('Connect with:\r\nconnect host port\r\ne.g. "connect localhost 3000"');
     }
 
     parse(input) {
@@ -19,16 +20,17 @@ class RequestHandler {
         const args = input.split(' ');
 
         if(args[0] in this.possibleRequests){
-            console.log('Error: command not possible')
+            this.log('Error: command not possible')
             return
         }
 
         if (args[0] == "connect") {
             if (this.connected == false){
                 this.client = new TCPClient(args[1], args[2]);
+                this.client.on("log", this.log)
                 this.connected = true;
             } else {
-                console.log("Already connected. Please disconnect before attempting to connect.");
+                this.log("Already connected. Please disconnect before attempting to connect.");
             }
         }
         else if (args[0] == "login") {
@@ -38,8 +40,26 @@ class RequestHandler {
             this.client.sendMsg(args[1]);
         }
         else {
-            console.log("Invalid command");
+            this.log("Invalid command");
         }
+    }
+
+    log(msg, type) {
+        //Push one up
+        cursor.goto(process.stdout.getWindowSize()[0],process.stdout.getWindowSize()[1]-1);
+        cursor.write('\n');
+        if (type != "direct") {
+            cursor.write('\n');
+        }
+        //Print to line 2 from bottom
+        cursor.goto(0,process.stdout.getWindowSize()[1]-1);
+        
+
+        cursor.eraseLine();
+        cursor.write(msg);
+        cursor.goto(0,process.stdout.getWindowSize()[1]);
+        cursor.write("> ");
+        //Return to input
     }
 
     printResponse(response) {
@@ -50,23 +70,42 @@ class RequestHandler {
     }
 }
 
-var p = new RequestHandler;
+var p = new RequestHandler();
+
+const readline = require('readline');
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+//cursor.goto(0,process.stdout.getWindowSize()[1]);
+rl.question('> ', (answer) => {
+    cursor.goto(0,process.stdout.getWindowSize()[1]-1);
+    cursor.eraseLine();
+    cursor.goto(0,process.stdout.getWindowSize()[1]);
+
+    p.parse(answer)
+    rl.prompt(true);
+});
+
+rl.on('line', (line) => {
+    cursor.goto(0,process.stdout.getWindowSize()[1]-1);
+    cursor.write('\x1b[' + '0' + 'K');
+    cursor.goto(0,process.stdout.getWindowSize()[1]);
+
+    p.parse(line);
+    rl.prompt(true);
+});
+
 function readRequest(){
-    // Reads input, runs continually
-    const readline = require('readline');
-
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
-    rl.question('Request: ', (answer) => {
-        p.parse(answer)
-
-        rl.close();
-        readRequest();
-    });
+    
 }
+
+function lf () { return '\n' }
+
+cursor.write(Array.apply(null, Array(process.stdout.getWindowSize()[1])).map(lf).join('')).eraseData(2).goto(1, 1);
+
 readRequest();
 
 //Testing commands

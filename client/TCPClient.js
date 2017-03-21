@@ -1,21 +1,30 @@
 const net = require('net');
+const EventEmitter = require('events').EventEmitter;
 
-module.exports = class TCPClient {
+var ansi = require('ansi')
+  , cursor = ansi(process.stdout)
+
+module.exports = class TCPClient extends EventEmitter {
     constructor(host, port) {
+        super(host, port);
         this.client = net.connect({
             host: host,
             port: port
         }, () => {
-            console.log("Connected to server. Host: " + host + " Port: " + port);
-            this.client.on('data', this.incomming);
+            this.emit("log", "Connected to server. Host: " + host + " Port: " + port);
+            this.client.on('data', (data) =>  this.incomming(data));
         });
     }
 
     login(username) {
         this.sendToServer("login", username);
+        this.username = username;
     }
 
     sendMsg(msg) {
+        cursor.goto(0,process.stdout.getWindowSize()[1]-1);
+        cursor.write("-> [" + ('\x1b[' + '33' + 'm') + this.username + ('\x1b[' + '37' + 'm') + "] " + msg + "\n");
+
         this.sendToServer("msg", msg);
     }
 
@@ -41,9 +50,11 @@ module.exports = class TCPClient {
     incomming(data) {
         try {
             var data = JSON.parse(data.toString('utf8'));
-            console.log(JSON.stringify(data));
+            if (data.response == "msg") {
+                this.emit("log", "-> [" + ('\x1b[' + '33' + 'm') + data.sender + ('\x1b[' + '37' + 'm') + "] " + data.content);
+            }
         } catch (ex) {
-            console.log("!> Malformed incomming data");
+            this.emit("log", "!> Malformed incomming data");
         }
     }
 }

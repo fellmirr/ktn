@@ -20,11 +20,7 @@ module.exports = class ClientHandler {
             }
         });
 
-        cursor.green();
-        cursor.write("+> ");
-        cursor.reset();
-
-        console.log("Info: New client connected. | Socket: " + socket.id);
+        this.server.log("Info: New client connected. | Socket: " + socket.id, "add");
         socket.write("Something", "utf8");
     }
 
@@ -36,8 +32,6 @@ module.exports = class ClientHandler {
         } 
         else {
             if (data.request == "msg") {
-                console.log("MSG");
-                //this.message(data.content);
                 this.message(data.content);
             } else if (data.request == "login") {
                 this.login(data.content);
@@ -54,7 +48,7 @@ module.exports = class ClientHandler {
         if (!this.server.usernameExists(username)) {
             this.username = username;
             this.loggedIn = true;
-            console.log("-> Info: Username set to " + username + " | Socket: " + this.socket.id);
+            this.server.log("Info: Username set to " + username + " | Socket: " + this.socket.id);
             //Send history
         } else {
             this.error("User exists");
@@ -82,16 +76,11 @@ module.exports = class ClientHandler {
     }
 
     error(msg) {
-        cursor.red();
-        cursor.write("!> ");
-        cursor.reset();
-        console.log("Error: " + msg + " | Socket: " + this.socket.id);
+        this.server.log("Error: " + msg + " | Socket: " + this.socket.id, "error");
         if (this.connected) this.write("error", msg);
     }
 
     write(response, content, sender) {
-        console.log(sender);
-
         if (!sender) sender = "server"; // Sender is an optional argument. If no sender is specified, default to server.
         
         var response = JSON.stringify({
@@ -100,8 +89,6 @@ module.exports = class ClientHandler {
             response: response,
             content: content
         });
-
-        console.log(response);
 
         this.socket.write(response);
     }
