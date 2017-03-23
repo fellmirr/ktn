@@ -12,6 +12,8 @@ class RequestHandler {
     }
 
     parse(input) {
+        const self = this;
+
         // check if answer is blank
         if(input.length == 0) {
             return;
@@ -27,7 +29,8 @@ class RequestHandler {
         if (args[0] == "connect") {
             if (this.connected == false){
                 this.client = new TCPClient(args[1], args[2]);
-                this.client.on("log", this.log)
+                this.client.on("log", this.log);
+                this.client.on("response", (res) => self.printResponse(res));
                 this.connected = true;
             } else {
                 this.log("Already connected. Please disconnect before attempting to connect.");
@@ -38,6 +41,9 @@ class RequestHandler {
         }
         else if (args[0] == "msg") {
             this.client.sendMsg(args[1]);
+        }
+        else if (args[0] == "history") {
+            this.client.getHistory();
         }
         else {
             this.log("Invalid command");
@@ -53,7 +59,6 @@ class RequestHandler {
         }
         //Print to line 2 from bottom
         cursor.goto(0,process.stdout.getWindowSize()[1]-1);
-        
 
         cursor.eraseLine();
         cursor.write(msg);
@@ -63,10 +68,19 @@ class RequestHandler {
     }
 
     printResponse(response) {
-        if (response.response == "history") {
-
+        if (response.response == "msg") {
+            this.log("-> [" + ('\x1b[' + '33' + 'm') + response.sender + ('\x1b[' + '37' + 'm') + "] " + response.content, "msg");
         }
-        //Print response in some format
+        else if (response.response == "history") {
+            for (var i = 0; i < response.content.length; i++) {
+                this.printResponse(JSON.parse(response.content[i]));
+            }
+        }
+        else {
+            console.log("Unknown command");
+            console.log(response.response);
+        }
+        //this.log("-> Response");
     }
 }
 
@@ -111,3 +125,6 @@ readRequest();
 //Testing commands
 p.parse("connect localhost 3000");
 p.parse("login user" + +Date.now());
+setTimeout(function() {
+    p.parse("history");
+}, 300);

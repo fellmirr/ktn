@@ -17,14 +17,16 @@ class TCPServer {
             cursor.reset();
         });
 
+        /* Class storage */
         this.clients = {};
+        this.history = [];
 
-        const _that = this;
+        const self = this;
 
         const server = net.createServer((socket) => {
             socket.id = shortid.generate();
 
-            let client = new ClientHandler(socket, _that);
+            let client = new ClientHandler(socket, self);
             this.clients[socket.id] = client;
         }).on('error', (err) => {
             //Handle errors
@@ -34,7 +36,7 @@ class TCPServer {
             host: 'localhost',
             port: port
         }, () => {
-            _that.log("Listening on port " + port, "status");
+            self.log("Listening on port " + port, "status");
         });
     }
 
@@ -61,11 +63,15 @@ class TCPServer {
     }
 
     getHistory() {
-
+        return this.history;
     }
 
     logout(clientID) {
 
+    }
+
+    pushToHistory(obj) {
+        this.history.push(obj);
     }
 
     /* Cleanup code */

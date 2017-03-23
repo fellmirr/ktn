@@ -3,7 +3,7 @@ var ansi = require('ansi')
 
 module.exports = class ClientHandler {
     constructor(socket, server) {
-        const _that = this;
+        const self = this;
 
         this.socket = socket;
         this.loggedIn = false;
@@ -11,12 +11,12 @@ module.exports = class ClientHandler {
         this.server = server;
 
         socket.setEncoding("utf8");
-        socket.on('data', (data) => { _that.handleData(data) });
+        socket.on('data', (data) => { self.handleData(data) });
         socket.on('error', (err) => {
             if (err.code == "ECONNRESET") {
-                _that.connected = false;
-                _that.error("Client abrubtly disconnected");
-                _that.server.removeClient(_that.socket.id);
+                self.connected = false;
+                self.error("Client abrubtly disconnected");
+                self.server.removeClient(self.socket.id);
             }
         });
 
@@ -64,7 +64,10 @@ module.exports = class ClientHandler {
     }
 
     history() {
-
+        //Might need to shard / make chunks? History could be quite big.
+        var history = this.server.getHistory();
+        this.write("history", history);
+        this.server.log(`Sent history to ${this.socket.id} (${history.length})`, "info");
     }
 
     message(msg) {
@@ -80,16 +83,17 @@ module.exports = class ClientHandler {
         if (this.connected) this.write("error", msg);
     }
 
-    write(response, content, sender) {
+    write(responseType, content, sender) {
         if (!sender) sender = "server"; // Sender is an optional argument. If no sender is specified, default to server.
         
         var response = JSON.stringify({
             timestamp: + new Date(),
             sender: sender,
-            response: response,
+            response: responseType,
             content: content
         });
 
         this.socket.write(response);
+        if (responseType == "msg") this.server.pushToHistory(response);
     }
 }

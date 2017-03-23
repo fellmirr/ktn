@@ -29,18 +29,24 @@ module.exports = class TCPClient extends EventEmitter {
     }
 
     names() {
-        this.sendToServer("names", null);
+        this.sendToServer("names");
     }
 
     help() {
-        this.sendToServer("help", null);
+        this.sendToServer("help");
+    }
+
+    getHistory() {
+        this.sendToServer("history");
     }
 
     logout() {
-        this.sendToServer("logout", null);
+        this.sendToServer("logout");
     }
 
     sendToServer(request, content) {
+        if (!content) content = null;
+
         this.client.write(JSON.stringify({
             request: request,
             content: content
@@ -49,12 +55,11 @@ module.exports = class TCPClient extends EventEmitter {
 
     incomming(data) {
         try {
-            var data = JSON.parse(data.toString('utf8'));
-            if (data.response == "msg") {
-                this.emit("log", "-> [" + ('\x1b[' + '33' + 'm') + data.sender + ('\x1b[' + '37' + 'm') + "] " + data.content);
-            }
+            var data = JSON.parse(data);
+            this.emit("response", data);
         } catch (ex) {
             this.emit("log", "!> Malformed incomming data");
+            //console.log(ex);
         }
     }
 }
