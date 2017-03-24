@@ -21,7 +21,7 @@ module.exports = class ClientHandler {
                 self.server.removeClient(self.socket.id);
             }
         });
-        //socket.on('disconnected', this.disconnect);
+        socket.on('disconnected', () => this.server.log("Disconnect"));
 
         this.server.log("Info: New client connected. | Socket: " + socket.id, "add");
         this.write("info", "Connected to server!");
