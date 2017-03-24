@@ -17,12 +17,6 @@ module.exports = class TCPServer {
         cursor.magenta().write("\n====== TCP Chat server ====== \n\n");
         cursor.reset();
 
-        require('child_process').exec('git rev-parse HEAD', function(err, stdout) {
-            cursor.grey();
-            console.log('Last commit hash on this branch is:', stdout);
-            cursor.reset();
-        });
-
         /* Class storage */
         this.clients = {};
         this.history = [];
