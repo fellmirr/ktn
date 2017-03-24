@@ -1,3 +1,5 @@
+'use strict';
+
 var ansi = require('ansi')
   , cursor = ansi(process.stdout)
 

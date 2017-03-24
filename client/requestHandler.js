@@ -1,3 +1,5 @@
+'use strict';
+
 const TCPClient = require('./TCPClient.js');
 var ansi = require('ansi')
   , cursor = ansi(process.stdout)
