@@ -40,10 +40,16 @@ class RequestHandler {
             this.client.login(args[1]);
         }
         else if (args[0] == "msg") {
-            this.client.sendMsg(args[1]);
+            this.client.sendMsg(input.substring(4,input.length));
         }
         else if (args[0] == "history") {
             this.client.getHistory();
+        }
+        else if (args[0] == "names") {
+            this.client.getNames();
+        }
+        else if (args[0] == "help") {
+            this.client.help();
         }
         else {
             this.log("Invalid command");
@@ -76,6 +82,9 @@ class RequestHandler {
                 this.printResponse(JSON.parse(response.content[i]));
             }
         }
+        else if (response.response == "info" || response.response == "names") {
+            this.log("-> [" + ('\x1b[' + '35' + 'm') + "Server" + ('\x1b[' + '37' + 'm') + "] " + response.content, "direct");
+        } 
         else {
             console.log("Unknown command");
             console.log(response.response);

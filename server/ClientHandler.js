@@ -19,6 +19,7 @@ module.exports = class ClientHandler {
                 self.server.removeClient(self.socket.id);
             }
         });
+        //socket.on('disconnected', this.disconnect);
 
         this.server.log("Info: New client connected. | Socket: " + socket.id, "add");
         socket.write("Something", "utf8");
@@ -39,6 +40,10 @@ module.exports = class ClientHandler {
                 this.names();
             } else if (data.request == "history") {
                 this.history();
+            } else if (data.request == "help") {
+                this.help();
+            } else if (data.request == "logout") {
+                this.logout();
             }
         }
     }
@@ -56,11 +61,14 @@ module.exports = class ClientHandler {
     }
 
     help() {
-        //list possible commands
+        this.write("info", this.server.getHelp());
+        this.server.log(`Sent help text to ${this.socket.id}`, "info");
     }
 
     names() {
-        //return list of usernames
+        var names = this.server.getNames();
+        this.write("info", names.join(", "));
+        this.server.log(`Sent names to ${this.socket.id} (${names.length})`, "info");
     }
 
     history() {
@@ -83,17 +91,17 @@ module.exports = class ClientHandler {
         if (this.connected) this.write("error", msg);
     }
 
-    write(responseType, content, sender) {
+    write(responseType, content, sender, timestamp) {
         if (!sender) sender = "server"; // Sender is an optional argument. If no sender is specified, default to server.
+        if (!timestamp) timestamp = + new Date(); // Timestamp might sometimes have to be determined beforehand.
         
         var response = JSON.stringify({
-            timestamp: + new Date(),
+            timestamp: timestamp,
             sender: sender,
             response: responseType,
             content: content
         });
 
         this.socket.write(response);
-        if (responseType == "msg") this.server.pushToHistory(response);
     }
 }

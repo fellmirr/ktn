@@ -28,7 +28,7 @@ module.exports = class TCPClient extends EventEmitter {
         this.sendToServer("msg", msg);
     }
 
-    names() {
+    getNames() {
         this.sendToServer("names");
     }
 

@@ -23,6 +23,7 @@ class TCPServer {
 
         const self = this;
 
+        //Create server
         const server = net.createServer((socket) => {
             socket.id = shortid.generate();
 
@@ -43,10 +44,20 @@ class TCPServer {
     broadcast(msg, senderID) {
         this.log('Broadcasting: "' + msg + '" From: ' + senderID);
 
-        for (let clientID in this.clients) { //For each property in object. Not the same as python for ... in
+        var senderUsername = this.clients[senderID].username;
+        var timestamp = + new Date();
+
+        this.history.push(JSON.stringify({
+            timestamp: timestamp,
+            sender: senderUsername,
+            response: "msg",
+            content: msg
+        }));
+
+        for (let clientID in this.clients) { //For each property in object.
             if (clientID != senderID) {
                 let client = this.clients[clientID];
-                client.write("msg", msg, this.clients[senderID].username);
+                client.write("msg", msg, senderUsername);
             }
         }
     }
@@ -59,19 +70,24 @@ class TCPServer {
     }
 
     getNames() {
-        
+        var names = [];
+        for (let clientID in this.clients) {
+            names.push(this.clients[clientID].username);
+        }
+        return names;
     }
 
     getHistory() {
         return this.history;
     }
 
-    logout(clientID) {
-
+    getHelp() {
+        return "Valid commands are: Login, names, history, msg and help";
     }
 
-    pushToHistory(obj) {
-        this.history.push(obj);
+    logout(clientID) {
+        this.clients[clientID].destroy();
+        removeClient(clientID);
     }
 
     /* Cleanup code */
