@@ -92,8 +92,8 @@ module.exports = class TCPServer {
     }
 
     logout(clientID) {
-        this.clients[clientID].destroy();
-        removeClient(clientID);
+        //this.clients[clientID].destroy();
+        this.removeClient(clientID);
     }
 
     /* Cleanup code */

@@ -5,4 +5,3 @@ Date.prototype.timeNow = function () {
 }
 
 const SERVER = new TCPServer(3000);
-

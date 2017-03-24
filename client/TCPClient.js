@@ -44,6 +44,7 @@ module.exports = class TCPClient extends EventEmitter {
 
     logout() {
         this.sendToServer("logout");
+        this.client.destroy();
     }
 
     sendToServer(request, content) {

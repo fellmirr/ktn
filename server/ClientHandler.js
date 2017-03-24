@@ -34,18 +34,22 @@ module.exports = class ClientHandler {
             this.error("Malformed request");
         } 
         else {
-            if (data.request == "msg") {
-                this.message(data.content);
-            } else if (data.request == "login") {
+            if (data.request == "login") {
                 this.login(data.content);
-            } else if (data.request == "names") {
-                this.names();
-            } else if (data.request == "history") {
-                this.history();
             } else if (data.request == "help") {
                 this.help();
-            } else if (data.request == "logout") {
-                this.logout();
+            } else if (this.loggedIn) {
+                if (data.request == "msg") {
+                    this.message(data.content);
+                } else if (data.request == "names") {
+                    this.names();
+                } else if (data.request == "history") {
+                    this.history();
+                }  else if (data.request == "logout") {
+                    this.logout();
+                }
+            } else {
+                this.error("Not logged in");
             }
         }
     }
@@ -53,9 +57,15 @@ module.exports = class ClientHandler {
     login(username) {
         //get username
         if (!this.server.usernameExists(username)) {
-            this.username = username;
-            this.loggedIn = true;
-            this.server.log("Info: Username set to " + username + " | Socket: " + this.socket.id);
+            if (this.validUsername(username)) {
+                this.username = username;
+                this.loggedIn = true;
+                this.server.log("Info: Username set to " + username + " | Socket: " + this.socket.id);
+                this.write("info", "Logged in");
+            }
+            else {
+                this.error("Invalid username");
+            }
             //Send history
         } else {
             this.error("User exists");
@@ -91,6 +101,14 @@ module.exports = class ClientHandler {
     error(msg) {
         this.server.log("Error: " + msg + " | Socket: " + this.socket.id, "error");
         if (this.connected) this.write("error", msg);
+    }
+
+    //Checks
+    validUsername(username) {
+        if (username.match(/[^A-Za-z0-9_.]/)) {
+            return false;
+        }
+        return true;
     }
 
     write(responseType, content, sender, timestamp) {

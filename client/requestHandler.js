@@ -51,6 +51,9 @@ module.exports = class RequestHandler {
         else if (args[0] == "help") {
             this.client.help();
         }
+        else if (args[0] == "logout") {
+            this.client.logout();
+        }
         else {
             this.log("Invalid command");
         }
@@ -85,6 +88,9 @@ module.exports = class RequestHandler {
         else if (response.response == "info" || response.response == "names") {
             this.log("-> [" + ('\x1b[' + '35' + 'm') + "Server" + ('\x1b[' + '37' + 'm') + "] " + response.content, "direct");
         } 
+        else if (response.response == "error") {
+            this.log("-> [" + ('\x1b[' + '35' + 'm') + "Server" + ('\x1b[' + '37' + 'm') + "] ERROR: " + response.content, "direct");
+        }
         else {
             console.log("Unknown command");
             console.log(response.response);

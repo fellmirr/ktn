@@ -42,8 +42,11 @@ cursor.write(Array.apply(null, Array(process.stdout.getWindowSize()[1])).map(lf)
 readRequest();
 
 //Testing commands
+
+/*
 p.parse("connect localhost 3000");
 p.parse("login user" + +Date.now());
 setTimeout(function() {
     p.parse("history");
 }, 300);
+*/
