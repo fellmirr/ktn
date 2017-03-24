@@ -6,8 +6,12 @@ var ansi = require('ansi')
 
 const ClientHandler = require('./ClientHandler.js');
 
-class TCPServer {
+module.exports = class TCPServer {
     constructor(port) {
+        function lf () { return '\n' }
+
+        cursor.write(Array.apply(null, Array(process.stdout.getWindowSize()[1])).map(lf).join('')).eraseData(2).goto(1, 1);
+
         cursor.magenta().write("\n====== TCP Chat server ====== \n\n");
         cursor.reset();
 
@@ -123,13 +127,4 @@ class TCPServer {
         cursor.write(msg);
         cursor.write("\n");
     }
-}
-
-cursor.write(Array.apply(null, Array(process.stdout.getWindowSize()[1])).map(lf).join('')).eraseData(2).goto(1, 1);
-const SERVER = new TCPServer(3000);
-
-function lf () { return '\n' }
-
-Date.prototype.timeNow = function () {
-     return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
 }

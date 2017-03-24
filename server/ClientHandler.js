@@ -22,7 +22,7 @@ module.exports = class ClientHandler {
         //socket.on('disconnected', this.disconnect);
 
         this.server.log("Info: New client connected. | Socket: " + socket.id, "add");
-        socket.write("Something", "utf8");
+        this.write("info", "Connected to server!");
     }
 
     handleData(data) {
